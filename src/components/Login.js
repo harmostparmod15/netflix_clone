@@ -1,10 +1,23 @@
 import { useState, useRef } from "react";
 import Header from "./Header";
 import { checkValidData } from "../utils/validate";
+import { auth } from "../utils/firebase";
+
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile,
+} from "firebase/auth";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addUser } from "../utils/userSlice";
 
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
   const [erroMessage, setErrorMessage] = useState(null);
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const name = useRef(null);
   const email = useRef(null);
@@ -16,6 +29,65 @@ const Login = () => {
     setErrorMessage(message);
 
     if (message) return;
+
+    // sign up & sign in Logic
+
+    // sign-up Logic
+    if (!isSignInForm) {
+      createUserWithEmailAndPassword(
+        auth,
+        email.current.value,
+        password.current.value
+      )
+        .then((userCredential) => {
+          // Signed up
+          const user = userCredential.user;
+          updateProfile(user, {
+            displayName: name?.current?.value,
+            photoURL: "https://avatars.githubusercontent.com/u/12824231?v=4",
+          })
+            .then(() => {
+              const { uid, email, displayName, photoURL } = auth?.currentUser;
+              dispatch(
+                addUser({
+                  uid: uid,
+                  email: email,
+                  displayName: displayName,
+                  photoURL: photoURL,
+                })
+              );
+              navigate("/browse");
+            })
+            .catch((error) => {
+              setErrorMessage(error?.message);
+            });
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          setErrorMessage(errorCode + " - " + errorMessage);
+          // ..
+        });
+    } else {
+      // sign-in Logic
+      signInWithEmailAndPassword(
+        auth,
+        email?.current?.value,
+        password?.current?.value
+      )
+        .then((userCredential) => {
+          // Signed in
+          const user = userCredential.user;
+          console.log(user);
+          navigate("/browse");
+          // ...
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          setErrorMessage(errorCode + " -  " + erroMessage);
+        });
+    }
   };
 
   const toggleSignInForm = () => {
