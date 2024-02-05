@@ -2,13 +2,13 @@ import { useState, useRef } from "react";
 import Header from "./Header";
 import { checkValidData } from "../utils/validate";
 import { auth } from "../utils/firebase";
+import { USER_AVATAR_URL } from "../utils/constants";
 
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   updateProfile,
 } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { addUser } from "../utils/userSlice";
 
@@ -16,7 +16,6 @@ const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
   const [erroMessage, setErrorMessage] = useState(null);
 
-  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const name = useRef(null);
@@ -25,7 +24,6 @@ const Login = () => {
 
   const handleButtonClick = () => {
     const message = checkValidData(email.current.value, password.current.value);
-    console.log(name?.current?.value);
     setErrorMessage(message);
 
     if (message) return;
@@ -44,7 +42,7 @@ const Login = () => {
           const user = userCredential.user;
           updateProfile(user, {
             displayName: name?.current?.value,
-            photoURL: "https://avatars.githubusercontent.com/u/12824231?v=4",
+            photoURL: USER_AVATAR_URL,
           })
             .then(() => {
               const { uid, email, displayName, photoURL } = auth?.currentUser;
@@ -56,7 +54,6 @@ const Login = () => {
                   photoURL: photoURL,
                 })
               );
-              navigate("/browse");
             })
             .catch((error) => {
               setErrorMessage(error?.message);
@@ -78,14 +75,11 @@ const Login = () => {
         .then((userCredential) => {
           // Signed in
           const user = userCredential.user;
-          console.log(user);
-          navigate("/browse");
-          // ...
         })
         .catch((error) => {
           const errorCode = error.code;
           const errorMessage = error.message;
-          setErrorMessage(errorCode + " -  " + erroMessage);
+          setErrorMessage(errorCode + " -  " + errorMessage);
         });
     }
   };
