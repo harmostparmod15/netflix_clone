@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import Header from "./Header";
 import { checkValidData } from "../utils/validate";
 import { auth } from "../utils/firebase";
-import { USER_AVATAR_URL } from "../utils/constants";
+import { BG_URL, USER_AVATAR_URL } from "../utils/constants";
 
 import {
   createUserWithEmailAndPassword,
@@ -92,11 +92,7 @@ const Login = () => {
     <div className="relative">
       <Header />
       <div className="absolute">
-        <img
-          className="   "
-          alt="logo"
-          src="https://assets.nflxext.com/ffe/siteui/vlv3/fc164b4b-f085-44ee-bb7f-ec7df8539eff/d23a1608-7d90-4da1-93d6-bae2fe60a69b/IN-en-20230814-popsignuptwoweeks-perspective_alpha_website_large.jpg"
-        ></img>
+        <img className="   " alt="logo" src={BG_URL}></img>
       </div>
 
       <form
